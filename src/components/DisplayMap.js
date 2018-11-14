@@ -22,6 +22,29 @@ class DisplayMap extends Component{
 
     componentWillReceiveProps = (props) => {
         this.setState({firstDrop: false});
+
+        // Change in the number of locations, so update the markers
+        if (this.state.markers.length !== props.locations.length) {
+            this.closeInfoWindow();
+            this.updateMarkers(props.locations);
+            this.setState({activeMarker: null});
+
+            return;
+        }
+
+        // The selected item is not the same as the active marker, so close the info window
+        if (!props.selectedIndex || (this.state.activeMarker && 
+            (this.state.markers[props.selectedIndex] !== this.state.activeMarker))) {
+            this.closeInfoWindow();
+        }
+
+        // Make sure there's a selected index
+        if (props.selectedIndex === null || typeof(props.selectedIndex) === "undefined") {
+            return;
+        };
+
+        // Treat the marker as clicked
+        this.onMarkerClick(this.state.markerProps[props.selectedIndex], this.state.markers[props.selectedIndex]);
     }
 
     mapReady = (props, map) => {
@@ -76,11 +99,11 @@ class DisplayMap extends Component{
                             };
                             if(this.state.activeMarker)
                                 this.state.activeMarker.setAnimation(null)
-                            marker.setAnimation(this.props.google.maps.Animation.DROP)
+                            marker.setAnimation(this.props.google.maps.Animation.BOUNCE)
                             this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
                         })
                 }else{
-                    marker.setAnimation(this.props.google.maps.Animation.DROP)
+                    marker.setAnimation(this.props.google.maps.Animation.BOUNCE)
                     this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
                 }
             })
@@ -122,7 +145,7 @@ class DisplayMap extends Component{
             }
             markerProps.push(mProps)
            
-            let animation = this.props.google.maps.Animation.DROP;
+            let animation = this.state.fisrtDrop ? this.props.google.maps.Animation.DROP : null;
             let marker = new this.props.google.maps.Marker({
                 
                 position: location.pos,
