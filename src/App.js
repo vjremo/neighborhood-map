@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import locations from './data/locations.json'
 import DisplayMap from './components/DisplayMap'
