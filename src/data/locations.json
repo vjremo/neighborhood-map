@@ -6,7 +6,7 @@
         "state":"OH",
         "zipcode":"43219",
         "url":"https://locations.sonicdrivein.com/oh/columbus/2846-stelzer-road.html",
-        "pos":{"lat":40.031974,"lon":-82.909542}
+        "pos":{"lat":40.031974,"lng":-82.909542}
         
     },
     {
@@ -16,7 +16,7 @@
         "state":"OH",
         "zipcode":"43219",
         "url":"https://www.marcos.com/",
-        "pos":{"lat":40.031056,"lon":-82.908496}
+        "pos":{"lat":40.031056,"lng":-82.908496}
         
     },
     {
@@ -26,7 +26,7 @@
         "state":"OH",
         "zipcode":"43219",
         "url":"https://locations.timhortons.com/us/oh/columbus/2845-stelzer-rd.html",
-        "pos":{"lat":40.031965,"lon":-82.911130}
+        "pos":{"lat":40.031965,"lng":-82.911130}
         
     },
     {
@@ -36,7 +36,7 @@
         "state":"OH",
         "zipcode":"43219",
         "url":"https://www.elrodeocolumbus.com/",
-        "pos":{"lat":40.030798,"lon":-82.908609}
+        "pos":{"lat":40.030798,"lng":-82.908609}
         
     }
 ]
