@@ -7,7 +7,7 @@ class DisplayMap extends Component{
     state ={
         map : null,
         markers : [],
-        mapMarkers : [],
+        markerProps : [],
         activeMarker : null,
         activeMarkerProps : null,
         showingInfoWindow : false
@@ -19,7 +19,8 @@ class DisplayMap extends Component{
 
     mapReady = (props, map) => {
         //Save the map reference in state and prepare the location markers
-        this.setState(map);
+        this.setState({map});
+        console.log(this.props)
         this.updateMarkers(this.props.locations)
     }
 
@@ -34,9 +35,12 @@ class DisplayMap extends Component{
         activeMarkerProps: null })
     }
 
-    onMarkerClick = () => {
+    onMarkerClick = (props, marker, event) => {
         //Close any info window already open
         this.closeInfoWindow();
+
+        //Set state to display info window
+        this.setState({showingInfoWindow: true, activeMarker: marker, activeMarkerProps : props})
     }
 
     updateMarkers = (locations) =>{
@@ -64,9 +68,10 @@ class DisplayMap extends Component{
                 url : location.url
             }
             markerProps.push(mProps)
-            
+            console.log(location)
             let animation = this.props.google.maps.Animation.DROP;
             let marker = new this.props.google.maps.Marker({
+                
                 position: location.pos,
                 map : this.state.map,
                 animation
@@ -74,7 +79,7 @@ class DisplayMap extends Component{
             marker.addListener('click', ()=>{
                 this.onMarkerClick(mProps, marker, null)
             })
-            return marker
+            return marker;
         })
         this.setState({markers, markerProps})
     }
@@ -105,7 +110,7 @@ class DisplayMap extends Component{
                 <InfoWindow
                     marker={this.state.activeMarker}
                     visible={this.state.showingInfoWindow}
-                    onClose={this.state.closeInfoWindow}>
+                    onClose={this.closeInfoWindow}>
                     <div>
                         <h3>{amProps && amProps.name}</h3>
                         {amProps && amProps.url 
@@ -115,8 +120,6 @@ class DisplayMap extends Component{
                     </div>
                     </InfoWindow>
                 </Map>
-                
-
         )
     }
 }
