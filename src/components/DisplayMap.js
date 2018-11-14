@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import {Map, GoogleApiWrapper, InfoWindow} from 'google-maps-react';
 
 const MAP_KEY = "AIzaSyAZUdiGhHDhXMKF5ZfKuF5vbFQI_sKpWVo"
+const FS_CLIENT = "FTL0H0C5H4AYWYOD5XXZYCGUPTR5RJF0RUORJ1TEXCFR51DQ"
+const FS_SECRET = "CCXOBE4TEGOIJC1L25MYRVVHI1AVG3ZMVDAW5JGKNOSOIH5A"
+const FS_VERSION = "20181114"
 
 class DisplayMap extends Component{
     state ={
@@ -20,7 +23,6 @@ class DisplayMap extends Component{
     mapReady = (props, map) => {
         //Save the map reference in state and prepare the location markers
         this.setState({map});
-        console.log(this.props)
         this.updateMarkers(this.props.locations)
     }
 
@@ -38,9 +40,56 @@ class DisplayMap extends Component{
     onMarkerClick = (props, marker, event) => {
         //Close any info window already open
         this.closeInfoWindow();
+    
+        let url = `https://api.foursquare.com/v2/venues/search?client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}&ll=${props.position.lat}, ${props.position.lng}&radius=2&limit=1`
+        let headers = new Headers()
+        let request = new Request(url, {
+            method: 'GET',
+            headers
+        })
 
-        //Set state to display info window
-        this.setState({showingInfoWindow: true, activeMarker: marker, activeMarkerProps : props})
+        //Create props for active marker
+        let activeMarkerProps;
+        fetch(request)
+            .then(response=>response.json())
+            .then(result => {
+                //Get the restaurant reference we want from FourSquare
+                let restaruant = this.getRestaurantInfo(props,result)
+                activeMarkerProps  = {
+                    ...props,
+                    fourSquare : restaruant[0]
+                };
+                //Get list of images for restaurant
+                if(activeMarkerProps.fourSquare){
+                    let url = `https://api.foursquare.com/v2/venues/${restaruant[0].id}/photos?client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}`
+                    fetch(url)
+                        .then(response=>response.json())
+                        .then(result => {
+                            activeMarkerProps = {
+                                ...activeMarkerProps,
+                                
+                                images : (result.response && (result.response.photos || ''))
+                            };
+                            if(this.state.activeMarker)
+                                this.state.activeMarker.setAnimation(null)
+                            marker.setAnimation(this.props.google.maps.Animation.DROP)
+                            this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
+                        })
+                }else{
+                    marker.setAnimation(this.props.google.maps.Animation.DROP)
+                    this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
+                }
+            })
+
+        
+    }
+
+    getRestaurantInfo = (props, data) => {
+        //Look for matching restaruant data in FourSquare compared for what we already know 
+        return data
+                .response
+                .venues
+                .filter(item => item.name.includes(props.name)|| props.name.includes(props.name)) 
     }
 
     updateMarkers = (locations) =>{
@@ -64,11 +113,11 @@ class DisplayMap extends Component{
                 key: index,
                 index,
                 name : location.name,
-                position : locations.pos,
+                position : location.pos,
                 url : location.url
             }
             markerProps.push(mProps)
-            console.log(location)
+           
             let animation = this.props.google.maps.Animation.DROP;
             let marker = new this.props.google.maps.Marker({
                 
@@ -117,6 +166,16 @@ class DisplayMap extends Component{
                         ? (
                             <a href={amProps.url} rel='noopener noreferrer' target='_blank'>See website</a>
                         ) : ""}
+                        {amProps && amProps.images
+                            ? (
+                                <div>
+                                    <img alt={amProps.name + " food picture"}
+                                    src={amProps.images.items[0].prefix + "100x100" + amProps.images.items[0].suffix}/>
+                                    
+                                    <p>Image from FourSquare</p> 
+                                </div>
+                            ) : ""
+                        }
                     </div>
                     </InfoWindow>
                 </Map>
