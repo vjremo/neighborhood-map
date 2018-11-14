@@ -6,9 +6,9 @@ class App extends Component {
 
   state = {
   
-      lat: 40.044774, 
-      lon: -82.914436,
-      zoom: 13,
+      lat: 40.031162, 
+      lon: -82.912036,
+      zoom: 17,
       all : locations
 
   }

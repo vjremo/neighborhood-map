@@ -115,7 +115,7 @@ class DisplayMap extends Component{
                         <h3>{amProps && amProps.name}</h3>
                         {amProps && amProps.url 
                         ? (
-                            <a href={amProps.url} target='_blank'>See website</a>
+                            <a href={amProps.url} rel='noopener noreferrer' target='_blank'>See website</a>
                         ) : ""}
                     </div>
                     </InfoWindow>
