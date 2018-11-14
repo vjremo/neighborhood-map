@@ -20,6 +20,10 @@ class DisplayMap extends Component{
 
     }
 
+    componentWillReceiveProps = (props) => {
+        this.setState({firstDrop: false});
+    }
+
     mapReady = (props, map) => {
         //Save the map reference in state and prepare the location markers
         this.setState({map});

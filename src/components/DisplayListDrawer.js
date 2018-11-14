@@ -39,6 +39,7 @@ class DisplayListDrawer extends Component {
         // Save the new query string in state and pass the string
         // up the call tree
         this.setState({ query: newQuery });
+        this.props.filterLocations(newQuery);
     }
 
     render = () => {
