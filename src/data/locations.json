@@ -1,0 +1,42 @@
+[
+    {
+        "name":"Sonic Drive-in",
+        "street":"2846 Stelzer Road",
+        "city": "Columbus",
+        "state":"OH",
+        "zipcode":"43219",
+        "url":"https://locations.sonicdrivein.com/oh/columbus/2846-stelzer-road.html",
+        "pos":{"lat" :40.031974, "lon": -82.909542}
+        
+    },
+    {
+        "name":"Marco's Pizza",
+        "street":"2820 Stelzer Road",
+        "city": "Columbus",
+        "state":"OH",
+        "zipcode":"43219",
+        "url":"https://www.marcos.com/",
+        "pos":{"lat" :40.031056,  "lon": -82.908496}
+        
+    },
+    {
+        "name":"Tim Hortons",
+        "street":"2845 Stelzer Road",
+        "city": "Columbus",
+        "state":"OH",
+        "zipcode":"43219",
+        "url":"https://locations.timhortons.com/us/oh/columbus/2845-stelzer-rd.html",
+        "pos":{"lat" :40.031965, "lon": -82.911130}
+        
+    },
+    {
+        "name":"El Rodeo",
+        "street":"2808 Stelzer Road",
+        "city": "Columbus",
+        "state":"OH",
+        "zipcode":"43219",
+        "url":"https://www.elrodeocolumbus.com/",
+        "pos":{"lat" :40.030798,  "lon": -82.908609}
+        
+    }
+]
