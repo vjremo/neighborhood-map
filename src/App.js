@@ -72,7 +72,7 @@ class App extends Component {
         <button onClick={this.toggleDrawer} style={this.styles.menuButton}>
             <i className="fas fa-bars"></i>
           </button>
-          <h1>Columbus, OH Restaurants</h1>
+          <h1>Columbus, OH Restaurants on Stelzer Road</h1>
         </div>
         <DisplayMap
           lat={this.state.lat}
