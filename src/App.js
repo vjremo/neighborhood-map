@@ -3,11 +3,12 @@ import './App.css';
 import locations from './data/locations.json'
 import DisplayMap from './components/DisplayMap'
 import DisplayListDrawer from './components/DisplayListDrawer'
+import IconButton from '@material-ui/core/IconButton'
+import MenuIcon from '@material-ui/icons/Menu'
 
 class App extends Component {
 
   state = {
-  
       lat: 40.031162, 
       lon: -82.912036,
       zoom: 17,
@@ -23,7 +24,8 @@ class App extends Component {
       left: 10,
       top: 20,
       background: "white",
-      padding: 10
+      padding: 10,
+      color: 'black'
     },
     hide: {
       display: 'none'
@@ -33,13 +35,15 @@ class App extends Component {
     }
   };
 
+ 
+
   componentDidMount= ()=>{
     this.setState({
       ...this.state,
       filtered: this.filterLocations(this.state.all, "")
     });
   }
-  toggleDrawer = () => {
+  toggleListDrawer = () => {
     // Toggle the value controlling whether the drawer is displayed
     this.setState({
       open: !this.state.open
@@ -69,9 +73,9 @@ class App extends Component {
     return (
       <div className="App">
         <div>
-        <button onClick={this.toggleDrawer} style={this.styles.menuButton}>
-            <i className="fas fa-bars"></i>
-          </button>
+          <IconButton onClick={this.toggleListDrawer} style={this.styles.menuButton} color="inherit" aria-label="Menu">
+            <MenuIcon />
+          </IconButton>
           <h1>Columbus, OH Restaurants on Stelzer Road</h1>
         </div>
         <DisplayMap
@@ -84,7 +88,7 @@ class App extends Component {
           <DisplayListDrawer
             locations={this.state.filtered}
             open={this.state.open}
-            toggleDrawer={this.toggleDrawer}
+            toggleDrawer={this.toggleListDrawer}
             filterLocations={this.updateQuery}
             clickListItem={this.clickListItem}/>
       </div>
