@@ -35,10 +35,11 @@ class DisplayListDrawer extends Component {
         }
     };
 
-    updateQuery = (event) => {
-        // Save the new query string in state and pass the query string to filter location list
-        this.setState({ query: event.target.value});
-        this.props.filterLocations(event.target.value);
+    updateQuery = (newQuery) => {
+        // Save the new query string in state and pass the string
+        // up the call tree
+        this.setState({ query: newQuery });
+        this.props.filterLocations(newQuery);
     }
 
     render = () => {
@@ -46,13 +47,14 @@ class DisplayListDrawer extends Component {
             <div>
                 <Drawer open={this.props.open} onClose={this.props.toggleDrawer}>
                     <div style={this.styles.list}>
-                        <input type="text"
+                        <input
                             style={this.styles.filterEntry}
-                            value={this.state.query}
-                            placeholder="Filter by Restaurant name"
+                            type="text"
+                            placeholder="Filter list"
                             name="filter"
-                            onChange={this.updateQuery}
-                            />
+                            onChange={e => this
+                                .updateQuery(e.target.value)}
+                            value={this.state.query} />
                         <ul style={this.styles.noBullets}>
                             {this.props.locations && this
                                 .props

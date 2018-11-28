@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import '../App.css';
 import {Map, GoogleApiWrapper, InfoWindow} from 'google-maps-react';
 import NoMapDisplay from './NoMapDisplay';
 
@@ -7,8 +6,6 @@ const MAP_KEY = "AIzaSyAZUdiGhHDhXMKF5ZfKuF5vbFQI_sKpWVo"
 const FS_CLIENT = "FTL0H0C5H4AYWYOD5XXZYCGUPTR5RJF0RUORJ1TEXCFR51DQ"
 const FS_SECRET = "CCXOBE4TEGOIJC1L25MYRVVHI1AVG3ZMVDAW5JGKNOSOIH5A"
 const FS_VERSION = "20181114"
-const FS_API = "https://api.foursquare.com/v2/venues"
-const FS_API_CLIENT_STR = `client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}`
 
 class DisplayMap extends Component{
     state ={
@@ -25,22 +22,24 @@ class DisplayMap extends Component{
     }
 
     componentWillReceiveProps = (props) => {
+        this.setState({firstDrop: false});
 
-        //Update the markers as number of locations change
+        // Change in the number of locations, so update the markers
         if (this.state.markers.length !== props.locations.length) {
             this.closeInfoWindow();
             this.updateMarkers(props.locations);
             this.setState({activeMarker: null});
+
             return;
         }
 
-        // If selected item is not same as the active marker, then close quick info window
+        // The selected item is not the same as the active marker, so close the info window
         if (!props.selectedIndex || (this.state.activeMarker && 
             (this.state.markers[props.selectedIndex] !== this.state.activeMarker))) {
             this.closeInfoWindow();
         }
 
-        // Verify that there's an selected index
+        // Make sure there's a selected index
         if (props.selectedIndex === null || typeof(props.selectedIndex) === "undefined") {
             return;
         };
@@ -49,8 +48,8 @@ class DisplayMap extends Component{
         this.onMarkerClick(this.state.markerProps[props.selectedIndex], this.state.markers[props.selectedIndex]);
     }
 
-    renderMap = (props, map) => {
-        //Save map reference in state and prepare location markers on map
+    mapReady = (props, map) => {
+        //Save the map reference in state and prepare the location markers
         this.setState({map});
         this.updateMarkers(this.props.locations)
     }
@@ -67,10 +66,10 @@ class DisplayMap extends Component{
     }
 
     onMarkerClick = (props, marker, event) => {
-        //As an marker is clicked, close other quick info window/s if open
+        //Close any info window already open
         this.closeInfoWindow();
     
-        let url = `${FS_API}/search?${FS_API_CLIENT_STR}&ll=${props.position.lat}, ${props.position.lng}&radius=2&limit=1`
+        let url = `https://api.foursquare.com/v2/venues/search?client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}&ll=${props.position.lat}, ${props.position.lng}&radius=2&limit=1`
         let headers = new Headers()
         let request = new Request(url, {
             method: 'GET',
@@ -90,7 +89,7 @@ class DisplayMap extends Component{
                 };
                 //Get list of images for restaurant
                 if(activeMarkerProps.fourSquare){
-                    let url = `${FS_API}/${restaruant[0].id}/photos?${FS_API_CLIENT_STR}`
+                    let url = `https://api.foursquare.com/v2/venues/${restaruant[0].id}/photos?client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}`
                     fetch(url)
                         .then(response=>response.json())
                         .then(result => {
@@ -101,11 +100,11 @@ class DisplayMap extends Component{
                             };
                             if(this.state.activeMarker)
                                 this.state.activeMarker.setAnimation(null)
-                            marker.setAnimation(this.props.google.maps.Animation.DROP)
+                            marker.setAnimation(this.props.google.maps.Animation.BOUNCE)
                             this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
                         })
                 }else{
-                    marker.setAnimation(this.props.google.maps.Animation.DROP)
+                    marker.setAnimation(this.props.google.maps.Animation.BOUNCE)
                     this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
                 }
             })
@@ -147,7 +146,7 @@ class DisplayMap extends Component{
             }
             markerProps.push(mProps)
            
-            let animation = this.props.google.maps.Animation.DROP ;
+            let animation = this.state.fisrtDrop ? this.props.google.maps.Animation.DROP : null;
             let marker = new this.props.google.maps.Marker({
                 
                 position: location.pos,
@@ -179,7 +178,7 @@ class DisplayMap extends Component{
             <Map 
                 role="application"
                 aria-label="map"
-                onReady={this.renderMap}
+                onReady={this.mapReady}
                 google={this.props.google}
                 zoom={this.props.zoom}
                 style={style}
