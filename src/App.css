@@ -30,3 +30,41 @@
     transform: rotate(360deg);
   }
 }
+
+/* for main map page */
+.page-title {
+  padding: 10px 0;
+  background: #315b91;
+  text-align: center;
+}
+.page-title h1 {
+  font-weight: 400;
+  margin: 0;
+  padding-left: 50px;
+  text-align: center;
+  color: white;
+}
+
+/*for list drawer page */
+.list-drawer {
+  width: 250px;
+  padding: 0px 15px 0px;
+}
+.filterList {
+  list-style-type: none;
+  padding: 0
+}
+.listItem {
+  margin-bottom: 15px
+}
+.listItemLink {
+  background: transparent;
+  border: none;
+  color: black
+}
+.filterInput {
+  border: 1px solid gray;
+  padding: 3px;
+  margin: 30px 0px 10px;
+  width: 100%;
+}
