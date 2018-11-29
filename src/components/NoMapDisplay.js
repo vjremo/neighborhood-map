@@ -3,19 +3,23 @@ import React, {Component} from 'react';
 class NoMapDisplay extends Component {
     state = {
         show: false,
-        timeout: null
+        timer: null
     }
 
+    /*Referred tutorial of Doug Brown for below sections 
+    Link: https://www.youtube.com/watch?v=NVAVLCJwAAo& */ 
+
     componentDidMount = () => {
-        let timeout = window.setTimeout(this.showMessage, 1000);
-        this.setState({timeout});
+        let timer = window.setTimeout(this.displayMessage, 1000);
+        this.setState({timer});
     }
 
     componentWillUnmount = () => {
-        window.clearTimeout(this.state.timeout);
+        window.clearTimeout(this.state.timer);
     }
 
-    showMessage = () => {
+    //If map could not be loaded, display error message
+    displayMessage = () => {
         this.setState({show: true});
     }
 
@@ -25,12 +29,12 @@ class NoMapDisplay extends Component {
                 {this.state.show
                     ? (
                         <div>
-                            <h1>Error loading map</h1>
+                            <h1>!! Error loading map !!</h1>
                             < p >
-                                Could not load map control due to a network error.Try again when you 're online.</p>
+                                Could not load map due to a network error. Please try again when you're back online.</p>
                         </div>
                     )
-                    : (<div><h1>Loading</h1></div>)
+                    : (<div><h1>Loading...</h1></div>)
             } </div>
         )
     }
