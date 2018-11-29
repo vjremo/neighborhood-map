@@ -1,4 +1,4 @@
-# My Neighborhood Map Project by Vijay for Udacity's Frontend-Nanodegree
+# Neighborhood Map Project by Vijay for Udacity's Frontend-Nanodegree
 
 ## Table of contents
 
@@ -11,7 +11,7 @@
 
 ## Overview
 
-This **My Neighborhood Map** project is developed with [Create React App](https://github.com/facebook/create-react-app), [Google Maps API](https://developers.google.com/maps/documentation/javascript/tutorial) and [Google Maps React](https://www.npmjs.com/package/google-map-react).
+This **Neighborhood Map** project is developed with [Create React App](https://github.com/facebook/create-react-app), [Google Maps API](https://developers.google.com/maps/documentation/javascript/tutorial) and [Google Maps React](https://www.npmjs.com/package/google-map-react).
 
 ## Features added
 
