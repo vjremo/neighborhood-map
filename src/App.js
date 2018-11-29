@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import './App.css';
+import IconButton from '@material-ui/core/IconButton'
+import MenuIcon from '@material-ui/icons/Menu'
+import './App.css'
 import locations from './data/locations.json'
 import DisplayMap from './components/DisplayMap'
 import DisplayListDrawer from './components/DisplayListDrawer'
@@ -7,12 +9,11 @@ import DisplayListDrawer from './components/DisplayListDrawer'
 class App extends Component {
 
   state = {
-  
       lat: 40.031162, 
-      lon: -82.912036,
-      zoom: 17,
+      lng: -82.912036,
+      zoomLevel: 17,
       all : locations,
-      filtered: null,
+      filteredList: null,
       open: false
   }
   styles = {
@@ -21,9 +22,9 @@ class App extends Component {
       marginRight: 20,
       position: "absolute",
       left: 10,
-      top: 20,
-      background: "white",
-      padding: 10
+      top: 10,
+      padding: 10,
+      color: 'white'
     },
     hide: {
       display: 'none'
@@ -33,30 +34,29 @@ class App extends Component {
     }
   };
 
+   /*Referred tutorial of Doug Brown for below sections 
+    Link: https://www.youtube.com/watch?v=NVAVLCJwAAo& */ 
   componentDidMount= ()=>{
-    this.setState({
-      ...this.state,
-      filtered: this.filterLocations(this.state.all, "")
+    this.setState({ ...this.state,
+      filteredList: this.filterLocations(this.state.all, "")
     });
   }
-  toggleDrawer = () => {
+  toggleListDrawer = () => {
     // Toggle the value controlling whether the drawer is displayed
-    this.setState({
-      open: !this.state.open
+    this.setState({ open: !this.state.open
     });
   }
 
   updateQuery = (query) => {
     // Update the query value and filter the list of locations accordingly
-    this.setState({
-      ...this.state,
+    this.setState({ ...this.state,
       selectedIndex: null,
-      filtered: this.filterLocations(this.state.all, query)
+      filteredList: this.filterLocations(this.state.all, query)
     });
   }
 
   filterLocations = (locations, query) => {
-    // Filter locations to match query string
+    // Filter locations as per query input
     return locations.filter(location => location.name.toLowerCase().includes(query.toLowerCase()));
   }
 
@@ -68,23 +68,23 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <div>
-        <button onClick={this.toggleDrawer} style={this.styles.menuButton}>
-            <i className="fas fa-bars"></i>
-          </button>
-          <h1>Columbus, OH Restaurants on Stelzer Road</h1>
+        <div className="page-title">
+          <IconButton onClick={this.toggleListDrawer} style={this.styles.menuButton} color="inherit" aria-label="Menu">
+            <MenuIcon />
+          </IconButton>
+          <h1>Columbus, OH Restaurants <em>on Stelzer Road</em></h1>
         </div>
         <DisplayMap
           lat={this.state.lat}
-          lon={this.state.lon}
-          zoom={this.state.zoom}
-          locations={this.state.filtered}
+          lng={this.state.lng}
+          zoom={this.state.zoomLevel}
+          locations={this.state.filteredList}
           selectedIndex={this.state.selectedIndex}
           clickListItem={this.clickListItem}/>
           <DisplayListDrawer
-            locations={this.state.filtered}
+            locations={this.state.filteredList}
             open={this.state.open}
-            toggleDrawer={this.toggleDrawer}
+            toggleDrawer={this.toggleListDrawer}
             filterLocations={this.updateQuery}
             clickListItem={this.clickListItem}/>
       </div>
