@@ -1,214 +1,220 @@
 import React, { Component } from 'react'
-import {Map, GoogleApiWrapper, InfoWindow} from 'google-maps-react';
+import { Map, GoogleApiWrapper, InfoWindow } from 'google-maps-react';
 import NoMapDisplay from './NoMapDisplay';
 
-const MAP_KEY = "AIzaSyAZUdiGhHDhXMKF5ZfKuF5vbFQI_sKpWVo"
+const G_MAP_KEY = "AIzaSyAZUdiGhHDhXMKF5ZfKuF5vbFQI_sKpWVo"
 const FS_CLIENT = "FTL0H0C5H4AYWYOD5XXZYCGUPTR5RJF0RUORJ1TEXCFR51DQ"
 const FS_SECRET = "CCXOBE4TEGOIJC1L25MYRVVHI1AVG3ZMVDAW5JGKNOSOIH5A"
 const FS_VERSION = "20181114"
+const FS_API = "https://api.foursquare.com/v2/venues"
+const FS_API_CLIENT_STR = `client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}`
 
-class DisplayMap extends Component{
-    state ={
-        map : null,
-        markers : [],
-        markerProps : [],
-        activeMarker : null,
-        activeMarkerProps : null,
-        showingInfoWindow : false
+class DisplayMap extends Component {
+    state = {
+        map: null,
+        markers: [],
+        markerProps: [],
+        activeMarker: null,
+        activeMarkerProps: null,
+        showingInfoWindow: false
     }
 
-    componentDidMount = () =>{
-
+    componentDidMount = () => {
     }
+
+     /*Referred tutorial of Doug Brown for below sections 
+    Link: https://www.youtube.com/watch?v=NVAVLCJwAAo& */ 
 
     componentWillReceiveProps = (props) => {
-        this.setState({firstDrop: false});
 
-        // Change in the number of locations, so update the markers
-        if (this.state.markers.length !== props.locations.length) {
+        const { markers, activeMarker, markerProps } = this.state
+
+        //Update the markers as number of locations change
+        if (markers.length !== props.locations.length) {
             this.closeInfoWindow();
-            this.updateMarkers(props.locations);
-            this.setState({activeMarker: null});
-
+            this.updateMapMarkers(props.locations);
+            this.setState({ activeMarker: null });
             return;
         }
 
-        // The selected item is not the same as the active marker, so close the info window
-        if (!props.selectedIndex || (this.state.activeMarker && 
-            (this.state.markers[props.selectedIndex] !== this.state.activeMarker))) {
+        // If selected item is not same as the active marker, then close quick info window
+        if (!props.selectedIndex || (activeMarker &&
+            (markers[props.selectedIndex] !== activeMarker))) {
             this.closeInfoWindow();
         }
 
-        // Make sure there's a selected index
-        if (props.selectedIndex === null || typeof(props.selectedIndex) === "undefined") {
+        // Verify presence of selected index
+        if (props.selectedIndex === null || typeof (props.selectedIndex) === "undefined") {
             return;
         };
 
-        // Treat the marker as clicked
-        this.onMarkerClick(this.state.markerProps[props.selectedIndex], this.state.markers[props.selectedIndex]);
+        // Once an marker is clicked, fetch additional information and save in its props
+        this.onMarkerClick(markerProps[props.selectedIndex], markers[props.selectedIndex]);
     }
 
-    mapReady = (props, map) => {
-        //Save the map reference in state and prepare the location markers
-        this.setState({map});
-        this.updateMarkers(this.props.locations)
+    //Save map reference in state and prepare location markers on map
+    renderMap = (props, map) => {    
+        this.setState({ map });
+        this.updateMapMarkers(this.props.locations)
     }
 
     closeInfoWindow = () => {
         //Display any active marker animation
-        this.state.activeMarker && this
-        .state
-        .activeMarker
-        .setAnimation(null);
-        this.setState({showingInfoWindow: false,
-        activeMarker: null,
-        activeMarkerProps: null })
+        this.state.activeMarker && this.state.activeMarker.setAnimation(null);
+        this.setState({ showingInfoWindow: false, activeMarker: null, activeMarkerProps: null })
     }
 
-    onMarkerClick = (props, marker, event) => {
-        //Close any info window already open
+    //Upon clicking the marker, request additional information from FourSquare
+    onMarkerClick = (props, marker) => {
+
+        //As an marker is clicked, close other quick info window/s if open
         this.closeInfoWindow();
-    
-        let url = `https://api.foursquare.com/v2/venues/search?client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}&ll=${props.position.lat}, ${props.position.lng}&radius=2&limit=1`
+
+        /* Invoke FourSqaureAPI request to fetch location
+        Note: To find exact location, limited search result count to 1*/
+        let url = `${FS_API}/search?${FS_API_CLIENT_STR}&ll=${props.position.lat}, ${props.position.lng}&radius=2&limit=1`
         let headers = new Headers()
         let request = new Request(url, {
             method: 'GET',
             headers
         })
 
-        //Create props for active marker
+        //Create props for active marker, from FourSquareAPI response
         let activeMarkerProps;
         fetch(request)
-            .then(response=>response.json())
+            .then(response => response.json())
             .then(result => {
                 //Get the restaurant reference we want from FourSquare
-                let restaruant = this.getRestaurantInfo(props,result)
-                activeMarkerProps  = {
+                let restaruant = this.getRestaruantInfo(props, result)
+                activeMarkerProps = {
                     ...props,
-                    fourSquare : restaruant[0]
+                    fourSquare: restaruant[0]
                 };
-                //Get list of images for restaurant
-                if(activeMarkerProps.fourSquare){
-                    let url = `https://api.foursquare.com/v2/venues/${restaruant[0].id}/photos?client_id=${FS_CLIENT}&client_secret=${FS_SECRET}&v=${FS_VERSION}`
+                //Get additional information of restaruant, if available on FourSquare
+                if (activeMarkerProps.fourSquare) {
+                     // Invoke FourSqaureAPI fetch to pictures of restaruant.
+                    let url = `${FS_API}/${restaruant[0].id}/photos?${FS_API_CLIENT_STR}`
                     fetch(url)
-                        .then(response=>response.json())
+                        .then(response => response.json())
                         .then(result => {
                             activeMarkerProps = {
                                 ...activeMarkerProps,
-                                
-                                images : (result.response && (result.response.photos || ''))
+                                //Store references of photos
+                                images: (result.response && (result.response.photos || '')),
+                                //Save category of restaruant
+                                categories : (result.response && (restaruant[0].categories[0] || ''))
                             };
-                            if(this.state.activeMarker)
+                            if (this.state.activeMarker)
                                 this.state.activeMarker.setAnimation(null)
-                            marker.setAnimation(this.props.google.maps.Animation.BOUNCE)
-                            this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
+                            marker.setAnimation(this.props.google.maps.Animation.DROP)
+                            this.setState({ showingInfoWindow: true, activeMarker: marker, activeMarkerProps })
                         })
-                }else{
-                    marker.setAnimation(this.props.google.maps.Animation.BOUNCE)
-                    this.setState({showingInfoWindow:true, activeMarker:marker,activeMarkerProps})
-                }
+                } 
             })
-
-        
     }
 
-    getRestaurantInfo = (props, data) => {
-        //Look for matching restaruant data in FourSquare compared for what we already know 
-        return data
-                .response
-                .venues
-                .filter(item => item.name.includes(props.name)|| props.name.includes(props.name)) 
+    //Look for matching restaruant data in FourSquare
+    getRestaruantInfo = (props, data) => {
+        return data.response.venues.filter(item => item.name.includes(props.name) || props.name.includes(props.name))
     }
 
-    updateMarkers = (locations) =>{
-        //If all locations are filtered, then we're done
-        if(!locations){
+    //Update markers on map with information from location json
+    updateMapMarkers = (locations) => {
+        //If location do not match filter input, then exit
+        if (!locations) {
             return;
         }
 
         //Remove any existing markers from map
-        this
-            .state
-            .markers
-            .forEach(marker=>marker.setMap(null));
-        
-        /*Iterate over locations to create parallel references to marker properties
-        and mark themselves that can be used for reference in interactions.
-        And add the markers to map along the way*/
-        let markerProps= []
-        let markers = locations.map((location,index)=>{
+        this.state.markers.forEach(marker => marker.setMap(null));
+
+        //Iterate over locations to create parallel references to marker and its properties
+        let markerProps = []
+        let markers = locations.map((location, index) => {
             let mProps = {
                 key: index,
                 index,
-                name : location.name,
-                position : location.pos,
-                url : location.url
-            }
-            markerProps.push(mProps)
-           
-            let animation = this.state.fisrtDrop ? this.props.google.maps.Animation.DROP : null;
-            let marker = new this.props.google.maps.Marker({
-                
+                name: location.name,
                 position: location.pos,
-                map : this.state.map,
+                url: location.url
+            }
+            //Save marker props
+            markerProps.push(mProps)
+
+            //Assign poistion and animation effect for map marker
+            let animation = this.props.google.maps.Animation.DROP;
+            let marker = new this.props.google.maps.Marker({
+                position: location.pos,
+                map: this.state.map,
                 animation
             })
-            marker.addListener('click', ()=>{
+            //Assign listener function for map marker
+            marker.addListener('click', () => {
                 this.onMarkerClick(mProps, marker, null)
             })
             return marker;
         })
-        this.setState({markers, markerProps})
+        //Add markers and corresponding props to map
+        this.setState({ markers, markerProps })
     }
 
     render = () => {
-        const style = {
-            width : '100%',
-            height : '100%'
+        const mapStyle = {
+            width: '100%',
+            height: '100%'
         }
-        const center = {
-            lat : this.props.lat,
-            lng : this.props.lon
+        const defaultMapPosition = {
+            lat: this.props.lat,
+            lng: this.props.lng
         }
 
-        let amProps = this.state.activeMarkerProps
+        //Assign current/clicked marker props
+        let currentMarkerProps = this.state.activeMarkerProps
 
-        
         return (
-            <Map 
+            <Map
                 role="application"
                 aria-label="map"
-                onReady={this.mapReady}
+                onReady={this.renderMap}
                 google={this.props.google}
                 zoom={this.props.zoom}
-                style={style}
-                initialCenter={center}
+                style={mapStyle}
+                initialCenter={defaultMapPosition}
                 onClick={this.closeInfoWindow}>
+                {/*Component to display quick info of restaurant*/}
                 <InfoWindow
                     marker={this.state.activeMarker}
                     visible={this.state.showingInfoWindow}
                     onClose={this.closeInfoWindow}>
                     <div>
-                        <h3>{amProps && amProps.name}</h3>
-                        {amProps && amProps.url 
-                        ? (
-                            <a href={amProps.url} rel='noopener noreferrer' target='_blank'>See website</a>
-                        ) : ""}
-                        {amProps && amProps.images
+                        <h3>{currentMarkerProps && currentMarkerProps.name}</h3>
+                        {/*Show restaurant category*/}
+                        {currentMarkerProps && currentMarkerProps.categories
+                            ? (
+                                <p><strong>{currentMarkerProps.categories.name || ''}</strong></p>
+                            ) : ""}
+                        {/*Display restaurant website URL*/}
+                        {currentMarkerProps && currentMarkerProps.url
+                            ? (
+                                <a href={currentMarkerProps.url} rel='noopener noreferrer' target='_blank'>Go to Website</a>
+                            ) : ""}
+                        {/*Show restaurant photos fetched from FourSquare */}
+                        {currentMarkerProps && currentMarkerProps.images
                             ? (
                                 <div>
-                                    <img alt={amProps.name + " food picture"}
-                                    src={amProps.images.items[0].prefix + "100x100" + amProps.images.items[0].suffix}/>
+                                    <img alt={currentMarkerProps.name + " food picture"}
+                                        src={currentMarkerProps.images.items[0].prefix + "100x100" + currentMarkerProps.images.items[0].suffix} />
+
+                                    <p>Picture from FourSquare</p>
                                     
-                                    <p>Image from FourSquare</p> 
                                 </div>
                             ) : ""
                         }
                     </div>
-                    </InfoWindow>
-                </Map>
+                </InfoWindow>
+            </Map>
         )
     }
 }
 
-export default GoogleApiWrapper({apiKey: MAP_KEY, LoadingContainer: NoMapDisplay})(DisplayMap)
+export default GoogleApiWrapper({apiKey: G_MAP_KEY, LoadingContainer: NoMapDisplay})(DisplayMap)
